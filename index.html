@@ -1,1 +1,89 @@
-C:\Users\30432\Documents\Codex\2026-11-10\new-chat\outputs\ChargeBox_Remote_ReadOnly.html
+<html lang="zh-CN"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#071018">
+  <title>ChargeBox Remote Monitor</title>
+  <style>
+    :root { color-scheme: dark; --bg:#071018; --panel:#12222d; --line:#29404f; --text:#edf8fc; --muted:#8fa9b6; --cyan:#27d9ee; --green:#35e58b; --amber:#ffc447; --red:#ff5c70; }
+    * { box-sizing: border-box; }
+    body { margin:0; min-height:100vh; background:radial-gradient(circle at top left,rgba(39,217,238,.15),transparent 32%),var(--bg); color:var(--text); font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; padding:max(18px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom)); }
+    main { width:min(980px,100%); margin:auto; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px; }
+    h1 { margin:0; font-size:clamp(21px,5vw,32px); }
+    .sub { color:var(--muted); font-size:12px; margin-top:4px; letter-spacing:.12em; text-transform:uppercase; }
+    .connection { display:flex; align-items:center; gap:8px; white-space:nowrap; color:var(--muted); }
+    .dot { width:10px; height:10px; border-radius:50%; background:currentColor; }
+    .connection.online { color:var(--green); }
+    .metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    .card { background:linear-gradient(155deg,rgba(24,42,55,.96),rgba(13,26,36,.98)); border:1px solid var(--line); border-radius:19px; padding:16px; box-shadow:0 16px 38px rgba(0,0,0,.18); }
+    .label { color:var(--muted); font-size:11px; letter-spacing:.13em; text-transform:uppercase; }
+    .value { margin-top:12px; font-size:clamp(34px,8vw,58px); font-weight:850; line-height:.95; }
+    .unit { color:var(--muted); font-size:15px; margin-left:5px; }
+    .section-title { display:flex; align-items:end; justify-content:space-between; margin:24px 2px 10px; }
+    h2 { margin:0; font-size:15px; letter-spacing:.08em; text-transform:uppercase; }
+    .small { color:var(--muted); font-size:11px; }
+    .batteries { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+    .battery { min-height:88px; }
+    .battery strong { display:block; margin-top:11px; font-size:21px; }
+    .battery.active { border-color:rgba(53,229,139,.55); }
+    .battery.active strong { color:var(--green); }
+    .status-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
+    .status { min-height:82px; }
+    .status strong { display:block; margin-top:11px; font-size:17px; }
+    .on { color:var(--green); } .off { color:var(--muted); }
+    footer { display:flex; justify-content:space-between; gap:12px; margin-top:18px; padding:0 3px; color:var(--muted); font-size:11px; }
+    @media (max-width:680px) { .metrics { grid-template-columns:1fr; } .batteries { grid-template-columns:repeat(2,1fr); } .status-grid { grid-template-columns:repeat(2,1fr); } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div><h1>ChargeBox Remote</h1><div class="sub">Read-only monitoring</div></div>
+      <div class="connection" id="connection"><span class="dot"></span><span id="connectionText">CONNECTING</span></div>
+    </header>
+    <section class="metrics">
+      <article class="card"><div class="label">Voltage</div><div class="value"><span id="voltage">--</span><span class="unit">V</span></div></article>
+      <article class="card"><div class="label">Current</div><div class="value"><span id="current">--</span><span class="unit">A</span></div></article>
+      <article class="card"><div class="label">Power</div><div class="value"><span id="power">--</span><span class="unit">W</span></div></article>
+    </section>
+    <div class="section-title"><h2>Battery Channels</h2><div class="small">BAT 1-8</div></div>
+    <section class="batteries" id="batteries"><article class="card battery" id="battery-0"><div class="label">BAT 1</div><strong>--.- V</strong></article><article class="card battery" id="battery-1"><div class="label">BAT 2</div><strong>--.- V</strong></article><article class="card battery" id="battery-2"><div class="label">BAT 3</div><strong>--.- V</strong></article><article class="card battery" id="battery-3"><div class="label">BAT 4</div><strong>--.- V</strong></article><article class="card battery" id="battery-4"><div class="label">BAT 5</div><strong>--.- V</strong></article><article class="card battery" id="battery-5"><div class="label">BAT 6</div><strong>--.- V</strong></article><article class="card battery" id="battery-6"><div class="label">BAT 7</div><strong>--.- V</strong></article><article class="card battery" id="battery-7"><div class="label">BAT 8</div><strong>--.- V</strong></article></section>
+    <div class="section-title"><h2>System Status</h2><div class="small">LIVE</div></div>
+    <section class="status-grid">
+      <article class="card status"><div class="label">Energy</div><strong id="energy">-- Wh</strong></article>
+      <article class="card status"><div class="label">Temperature</div><strong id="temperature">-- C</strong></article>
+      <article class="card status"><div class="label">Fan</div><strong id="fan">--</strong></article>
+      <article class="card status"><div class="label">CHG1 Port</div><strong id="chg1">OFF</strong></article>
+      <article class="card status"><div class="label">CHG2 Port</div><strong id="chg2">OFF</strong></article>
+    </section>
+    <footer><span>STATUS ONLY - CONTROL DISABLED</span><span id="updated">Waiting for data</span></footer>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/mqtt@5.10.4/dist/mqtt.min.js"></script>
+  <script>
+    const batteryBox = document.getElementById("batteries");
+    batteryBox.innerHTML = Array.from({length:8},(_,index) => `<article class="card battery" id="battery-${index}"><div class="label">BAT ${index+1}</div><strong>--.- V</strong></article>`).join("");
+    const number = (value,digits) => Number.isFinite(value) ? value.toFixed(digits) : "--";
+    const setText = (id,value) => document.getElementById(id).textContent = value;
+    const setPort = (id,on) => { const node=document.getElementById(id); node.textContent=on ? "ON" : "OFF"; node.className=on ? "on" : "off"; };
+    function update(data) {
+      setText("voltage",number(data.voltage,2)); setText("current",number(data.current,3)); setText("power",number(data.power,1));
+      setText("energy",number(data.energy,1)+" Wh"); setText("temperature",data.temperature == null ? "-- C" : number(data.temperature,1)+" C");
+      const fanPercent=Math.round((data.fanDuty || 0)*100/255); setText("fan",(data.fan ? fanPercent+"% ON" : fanPercent+"% OFF"));
+      setPort("chg1",data.chg1); setPort("chg2",data.chg2);
+      (data.batteries || []).slice(0,8).forEach((battery,index) => {
+        const node=document.getElementById("battery-"+index); node.querySelector("strong").textContent=battery.voltage == null ? "--.- V" : number(battery.voltage,2)+" V"; node.classList.toggle("active",!!battery.visible);
+      });
+      setText("updated","Updated "+new Date().toLocaleTimeString());
+      document.getElementById("connection").className="connection online"; setText("connectionText","LIVE");
+    }
+    const params=new URLSearchParams(location.search);
+    const topic=params.get("topic") || "chargebox/+/state";
+    const client=mqtt.connect("wss://broker.emqx.io:8084/mqtt",{clientId:"chargebox-view-"+Math.random().toString(16).slice(2),reconnectPeriod:2000,connectTimeout:5000});
+    client.on("connect",()=>client.subscribe(topic));
+    client.on("message",(_topic,payload)=>{ try { update(JSON.parse(payload.toString())); } catch (_) {} });
+    client.on("error",()=>{ document.getElementById("connection").className="connection"; setText("connectionText","RECONNECTING"); });
+    client.on("close",()=>{ document.getElementById("connection").className="connection"; setText("connectionText","RECONNECTING"); });
+  </script>
+
+
+</body></html>
